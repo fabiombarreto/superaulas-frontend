@@ -13,42 +13,34 @@ import { Calendar as CalendarIcon } from "@phosphor-icons/react/dist/ssr/Calenda
 import { Flag as FlagIcon } from "@phosphor-icons/react/dist/ssr/Flag"; // Ícone de flag (prioridade)
 import { ChatCircle as ChatCircleIcon } from "@phosphor-icons/react/dist/ssr/ChatCircle"; // Ícone de chat
 
+const statusColorMap: Record<Artifact['status'], string> = {
+        draft: '#FFD700',
+        in_review: '#ADD8E6',
+        published: '#90EE90',
+};
+
 import type { Artifact } from "@/types/artifact";
 
 export interface ArtifactCardProps {
-	artifact: Artifact;
+        artifact: Artifact;
+        onClick?: (artifact: Artifact) => void;
 }
 
-const getStatusColor = (status: Artifact['status']): string => {
-	switch (status) {
-		case 'draft': {
-			return '#FFD700'; // Amarelo
-		}
-		case 'in_review': {
-			return '#ADD8E6'; // Azul claro
-		}
-		case 'published': {
-			return '#90EE90'; // Verde claro
-		}
-		default: {
-			return '#D3D3D3'; // Cinza claro
-		}
-	}
-};
 
-export function ArtifactCard({ artifact }: ArtifactCardProps): React.JSX.Element {
+export function ArtifactCard({ artifact, onClick }: ArtifactCardProps): React.JSX.Element {
 
-	return (
-		<Card sx={{
-			display: "flex",
-			flexDirection: "column",
-			height: "auto", // Altura automática para se ajustar ao conteúdo
-			borderRadius: 1, // Cantos mais arredondados
-			boxShadow: '0 1px 3px rgba(0,0,0,0.1)', // Sombra sutil
-			border: '1px solid #e0e0e0', // Borda sutil
-			p: 1.5, // Padding interno
-			backgroundColor: '#ffffff', // Fundo branco
-		}}>
+        return (
+                <Card onClick={() => onClick?.(artifact)} sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "auto", // Altura automática para se ajustar ao conteúdo
+                        borderRadius: 1, // Cantos mais arredondados
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)', // Sombra sutil
+                        border: '1px solid #e0e0e0', // Borda sutil
+                        p: 1.5, // Padding interno
+                        backgroundColor: '#ffffff', // Fundo branco
+                        cursor: onClick ? 'pointer' : 'default',
+                }}>
 			<CardContent sx={{ flex: "1 1 auto", p: 0, '&:last-child': { pb: 0 } }}> {/* Remover padding padrão do CardContent */}
 				<Stack spacing={1}>
 					{/* ID e Título */}
@@ -65,7 +57,7 @@ export function ArtifactCard({ artifact }: ArtifactCardProps): React.JSX.Element
 							label={artifact.status.replace('_', ' ').toUpperCase()} // Ex: DRAFT -> DRAFT
 							size="small"
 							sx={{
-								backgroundColor: getStatusColor(artifact.status),
+                                                                backgroundColor: statusColorMap[artifact.status] ?? '#D3D3D3',
 								color: 'rgba(0,0,0,0.87)',
 								fontWeight: 'bold',
 								height: '20px',
