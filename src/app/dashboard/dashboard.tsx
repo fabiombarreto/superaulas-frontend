@@ -16,13 +16,18 @@ import dayjs from "dayjs"; // Para ajudar com as datas
 
 import type { Artifact } from "@/types/artifact"; // Sua interface Artifact
 import { ArtifactCard } from "@/components/dashboard/artifacts/artifact-card"; // Seu componente ArtifactCard
+import { CreateArtifactModal } from "@/components/artifacts/CreateArtifactModal";
 
 // Componente Placeholder para adicionar artefatos
-function CardPlaceholder(): React.JSX.Element {
-	return (
-		<Box
-			sx={{
-				alignItems: "center",
+interface CardPlaceholderProps {
+        onClick: () => void;
+}
+
+function CardPlaceholder({ onClick }: CardPlaceholderProps): React.JSX.Element {
+        return (
+                <Box
+                        sx={{
+                                alignItems: "center",
 				border: "1px dashed var(--mui-palette-divider)",
 				borderRadius: 1,
 				display: "flex",
@@ -30,15 +35,16 @@ function CardPlaceholder(): React.JSX.Element {
 				p: 2,
 				minHeight: '80px', // Altura mínima para o placeholder
 				cursor: 'pointer',
-				'&:hover': {
-					backgroundColor: 'action.hover',
-				}
-			}}
-		>
-			<Typography color="text.secondary" variant="body2">
-				+ Adicionar Artefato
-			</Typography>
-		</Box>
+                                '&:hover': {
+                                        backgroundColor: 'action.hover',
+                                }
+                        }}
+                        onClick={onClick}
+                >
+                        <Typography color="text.secondary" variant="body2">
+                                + Adicionar Artefato
+                        </Typography>
+                </Box>
 	);
 }
 
@@ -130,6 +136,8 @@ export default function Dashboard(): React.JSX.Element {
   const loading = false;
   const error = null;
 
+  const [openCreateModal, setOpenCreateModal] = React.useState<boolean>(false);
+
 	const draft = artifacts.filter((a) => a.status === "draft");
 	const inReview = artifacts.filter((a) => a.status === "in_review");
 	const published = artifacts.filter((a) => a.status === "published");
@@ -169,7 +177,7 @@ export default function Dashboard(): React.JSX.Element {
 							{draft.map((artifact) => (
 								<ArtifactCard key={artifact.id} artifact={artifact} />
 							))}
-							<CardPlaceholder />
+                                                        <CardPlaceholder onClick={() => setOpenCreateModal(true)} />
 						</Stack>
 					</Grid>
 					<Grid size={{
@@ -186,7 +194,7 @@ export default function Dashboard(): React.JSX.Element {
 							{inReview.map((artifact) => (
 								<ArtifactCard key={artifact.id} artifact={artifact} />
 							))}
-							<CardPlaceholder />
+                                                        <CardPlaceholder onClick={() => setOpenCreateModal(true)} />
 						</Stack>
 					</Grid>
 					<Grid size={{
@@ -203,11 +211,15 @@ export default function Dashboard(): React.JSX.Element {
 							{published.map((artifact) => (
 								<ArtifactCard key={artifact.id} artifact={artifact} />
 							))}
-							<CardPlaceholder />
+                                                        <CardPlaceholder onClick={() => setOpenCreateModal(true)} />
 						</Stack>
 					</Grid>
-				</Grid>
-			)}
-		</Stack>
-	);
+                                </Grid>
+                        )}
+                        <CreateArtifactModal
+                                open={openCreateModal}
+                                onClose={() => setOpenCreateModal(false)}
+                        />
+                </Stack>
+        );
 }
