@@ -16,6 +16,7 @@ import Typography from "@mui/material/Typography";
 import type { Artifact } from "@/types/artifact"; // Sua interface Artifact
 import { ArtifactCard } from "@/components/dashboard/artifacts/artifact-card"; // Seu componente ArtifactCard
 import { CreateArtifactModal } from "@/components/artifacts/create-artifact-modal";
+import { EditArtifactModal } from "@/components/artifacts/edit-artifact-modal";
 import { apiFetch } from "@/lib/api";
 
 // Componente Placeholder para adicionar artefatos
@@ -55,6 +56,7 @@ export default function Dashboard(): React.JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
 
   const [openCreateModal, setOpenCreateModal] = React.useState<boolean>(false);
+  const [selectedArtifact, setSelectedArtifact] = React.useState<Artifact | null>(null);
 
   // Busca os artefatos do backend
   const fetchArtifacts = React.useCallback(async () => {
@@ -118,9 +120,13 @@ export default function Dashboard(): React.JSX.Element {
 								<Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Rascunho ({draft.length})</Typography>
 								<Button size="small" sx={{ minWidth: 'unset', p: '4px', borderRadius: '50%' }}>...</Button> {/* Botão de opções */}
 							</Box>
-							{draft.map((artifact) => (
-								<ArtifactCard key={artifact.id} artifact={artifact} />
-							))}
+                                                        {draft.map((artifact) => (
+                                                                <ArtifactCard
+                                                                        key={artifact.id}
+                                                                        artifact={artifact}
+                                                                        onClick={() => setSelectedArtifact(artifact)}
+                                                                />
+                                                        ))}
                                                         <CardPlaceholder onClick={() => setOpenCreateModal(true)} />
 						</Stack>
 					</Grid>
@@ -135,9 +141,13 @@ export default function Dashboard(): React.JSX.Element {
 								<Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Em Revisão ({inReview.length})</Typography>
 								<Button size="small" sx={{ minWidth: 'unset', p: '4px', borderRadius: '50%' }}>...</Button>
 							</Box>
-							{inReview.map((artifact) => (
-								<ArtifactCard key={artifact.id} artifact={artifact} />
-							))}
+                                                        {inReview.map((artifact) => (
+                                                                <ArtifactCard
+                                                                        key={artifact.id}
+                                                                        artifact={artifact}
+                                                                        onClick={() => setSelectedArtifact(artifact)}
+                                                                />
+                                                        ))}
                                                         <CardPlaceholder onClick={() => setOpenCreateModal(true)} />
 						</Stack>
 					</Grid>
@@ -152,9 +162,13 @@ export default function Dashboard(): React.JSX.Element {
 								<Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Publicado ({published.length})</Typography>
 								<Button size="small" sx={{ minWidth: 'unset', p: '4px', borderRadius: '50%' }}>...</Button>
 							</Box>
-							{published.map((artifact) => (
-								<ArtifactCard key={artifact.id} artifact={artifact} />
-							))}
+                                                        {published.map((artifact) => (
+                                                                <ArtifactCard
+                                                                        key={artifact.id}
+                                                                        artifact={artifact}
+                                                                        onClick={() => setSelectedArtifact(artifact)}
+                                                                />
+                                                        ))}
                                                         <CardPlaceholder onClick={() => setOpenCreateModal(true)} />
 						</Stack>
 					</Grid>
@@ -163,6 +177,16 @@ export default function Dashboard(): React.JSX.Element {
                         <CreateArtifactModal
                                 open={openCreateModal}
                                 onClose={() => setOpenCreateModal(false)}
+                        />
+                        <EditArtifactModal
+                                open={Boolean(selectedArtifact)}
+                                artifact={selectedArtifact}
+                                onClose={() => setSelectedArtifact(null)}
+                                onSaved={(updated) =>
+                                        setArtifacts((prev) =>
+                                                prev.map((a) => (a.id === updated.id ? updated : a))
+                                        )
+                                }
                         />
                 </Stack>
         );
