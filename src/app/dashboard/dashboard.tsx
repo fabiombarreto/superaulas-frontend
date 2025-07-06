@@ -12,7 +12,6 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import dayjs from "dayjs"; // Para ajudar com as datas
 
 import type { Artifact } from "@/types/artifact"; // Sua interface Artifact
 import { ArtifactCard } from "@/components/dashboard/artifacts/artifact-card"; // Seu componente ArtifactCard
@@ -48,95 +47,53 @@ function CardPlaceholder({ onClick }: CardPlaceholderProps): React.JSX.Element {
 	);
 }
 
-// Dados mockados para os artefatos
-const mockedArtifacts: Artifact[] = [
-  {
-    id: "ART-001",
-    name: "Introdução ao FastAPI",
-    type: "script",
-    status: "draft",
-    review_type: "text",
-    review: "Rascunho inicial, precisa de revisão de conteúdo.",
-    link: "https://placehold.co/140x140/FF5733/FFFFFF?text=Script+FastAPI",
-    created_at: dayjs().subtract(5, "days").toISOString(),
-    updated_at: dayjs().subtract(1, "days").toISOString(),
-    created_by: { id: "USR-001", name: "Miron Vitold", avatar: "/assets/avatar-1.png" },
-    updated_by: { id: "USR-001", name: "Miron Vitold", avatar: "/assets/avatar-1.png" },
-  },
-  {
-    id: "ART-002",
-    name: "Design de APIs REST",
-    type: "slide",
-    status: "draft",
-    review_type: "url",
-    review: undefined,
-    link: "https://placehold.co/140x140/33FF57/FFFFFF?text=Slides+REST",
-    created_at: dayjs().subtract(7, "days").toISOString(),
-    updated_at: dayjs().subtract(2, "days").toISOString(),
-    created_by: { id: "USR-002", name: "Siegbert Gottfried", avatar: "/assets/avatar-2.png" },
-    updated_by: { id: "USR-001", name: "Miron Vitold", avatar: "/assets/avatar-1.png" },
-  },
-  {
-    id: "ART-003",
-    name: "Tutorial de SQLAlchemy",
-    type: "video",
-    status: "in_review",
-    review_type: "url",
-    review: "Revisão pendente do time de conteúdo.",
-    link: "https://placehold.co/140x140/3357FF/FFFFFF?text=Video+SQLA",
-    created_at: dayjs().subtract(10, "days").toISOString(),
-    updated_at: dayjs().subtract(3, "hours").toISOString(),
-    created_by: { id: "USR-003", name: "Carson Darrin", avatar: "/assets/avatar-3.png" },
-    updated_by: { id: "USR-003", name: "Carson Darrin", avatar: "/assets/avatar-3.png" },
-  },
-  {
-    id: "ART-004",
-    name: "Guia de Autenticação JWT",
-    type: "script",
-    status: "in_review",
-    review_type: "text",
-    review: "Aguardando feedback do revisor técnico.",
-    link: "https://placehold.co/140x140/FF33A8/FFFFFF?text=Script+JWT",
-    created_at: dayjs().subtract(12, "days").toISOString(),
-    updated_at: dayjs().subtract(1, "hour").toISOString(),
-    created_by: { id: "USR-004", name: "Penjani Inyene", avatar: "/assets/avatar-4.png" },
-    updated_by: { id: "USR-002", name: "Siegbert Gottfried", avatar: "/assets/avatar-2.png" },
-  },
-  {
-    id: "ART-005",
-    name: "Melhores Práticas de Deploy",
-    type: "video",
-    status: "published",
-    review_type: "url",
-    review: "Publicado em 2024-06-15.",
-    link: "https://placehold.co/140x140/33FFB5/FFFFFF?text=Video+Deploy",
-    created_at: dayjs().subtract(15, "days").toISOString(),
-    updated_at: dayjs().subtract(10, "days").toISOString(),
-    created_by: { id: "USR-005", name: "Fran Perez", avatar: "/assets/avatar-5.png" },
-    updated_by: { id: "USR-005", name: "Fran Perez", avatar: "/assets/avatar-5.png" },
-  },
-  {
-    id: "ART-006",
-    name: "Fundamentos de Bancos de Dados",
-    type: "slide",
-    status: "published",
-    review_type: "text",
-    review: "Disponível para todos os alunos.",
-    link: "https://placehold.co/140x140/FF8C33/FFFFFF?text=Slides+DB",
-    created_at: dayjs().subtract(20, "days").toISOString(),
-    updated_at: dayjs().subtract(15, "days").toISOString(),
-    created_by: { id: "USR-001", name: "Miron Vitold", avatar: "/assets/avatar-1.png" },
-    updated_by: { id: "USR-001", name: "Miron Vitold", avatar: "/assets/avatar-1.png" },
-  },
-];
-
-
+// Component principal do Dashboard
 export default function Dashboard(): React.JSX.Element {
-  const artifacts = mockedArtifacts;
-  const loading = false;
-  const error = null;
+  const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   const [openCreateModal, setOpenCreateModal] = React.useState<boolean>(false);
+
+  // Busca os artefatos do backend
+  const fetchArtifacts = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Token de autenticação não encontrado. Faça login.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/v1/artifacts`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Erro ao buscar artefatos: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setArtifacts(data.items || data);
+    } catch (error_) {
+      console.error("Erro ao buscar artefatos:", error_);
+      setError(error_ instanceof Error ? error_.message : "Erro desconhecido ao buscar artefatos.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchArtifacts();
+  }, [fetchArtifacts]);
 
 	const draft = artifacts.filter((a) => a.status === "draft");
 	const inReview = artifacts.filter((a) => a.status === "in_review");
