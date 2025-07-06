@@ -16,6 +16,7 @@ import Typography from "@mui/material/Typography";
 import type { Artifact } from "@/types/artifact"; // Sua interface Artifact
 import { ArtifactCard } from "@/components/dashboard/artifacts/artifact-card"; // Seu componente ArtifactCard
 import { CreateArtifactModal } from "@/components/artifacts/create-artifact-modal";
+import { apiFetch } from "@/lib/api";
 
 // Componente Placeholder para adicionar artefatos
 interface CardPlaceholderProps {
@@ -60,21 +61,7 @@ export default function Dashboard(): React.JSX.Element {
     setLoading(true);
     setError(null);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setError("Token de autenticação não encontrado. Faça login.");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(`${API_URL}/api/v1/artifacts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiFetch("/artifacts");
 
       if (!response.ok) {
         const errorData = await response.json();

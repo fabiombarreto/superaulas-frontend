@@ -2,6 +2,7 @@
 
 import type { User } from "@/types/user";
 import { apiFetch } from "@/lib/api";
+import { logout } from "@/lib/auth/logout";
 
 const user = {
 	id: "USR-000",
@@ -89,11 +90,11 @@ class AuthClient {
 		return { data: user };
 	}
 
-	async signOut(): Promise<{ error?: string }> {
-		localStorage.removeItem("token");
+        async signOut(): Promise<{ error?: string }> {
+                logout();
 
-		return {};
-	}
+                return {};
+        }
 }
 
 export const authClient = new AuthClient();

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import { paths } from "@/paths";
+import { logout } from "@/lib/auth/logout";
 
 /**
  * Custom Axios request configuration allowing a boolean `withAuth` property
@@ -37,14 +37,10 @@ api.interceptors.request.use((config) => {
 // Add a response interceptor to handle unauthorized responses.
 api.interceptors.response.use(
 	(response: AxiosResponse): AxiosResponse => response,
-	(error) => {
-		if (error.response && error.response.status === 401) {
-			localStorage.removeItem("token");
-
-			if (globalThis.window !== undefined) {
-				globalThis.location.href = paths.auth.signIn;
-			}
-		}
+        (error) => {
+                if (error.response && error.response.status === 401) {
+                        logout();
+                }
 
 		return Promise.reject(error);
 	}

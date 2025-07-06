@@ -18,6 +18,7 @@ import type { User } from "@/components/dashboard/user/users-table";
 import { UserCreateModal, NewUserData } from "@/components/dashboard/user/user-create-modal";
 import { UserEditModal, UserUpdateData } from "@/components/dashboard/user/user-edit-modal";     // Novo: Modal de Edição
 import { UserDeleteConfirmModal } from "@/components/dashboard/user/user-delete-confirm-modal"; // Novo: Modal de Confirmação de Exclusão
+import { apiFetch } from "@/lib/api";
 
 
 // Metadata para a página (ajuste conforme a estrutura do seu projeto Next.js)
@@ -61,21 +62,7 @@ export default function Page(): React.JSX.Element {
     setLoading(true);
     setError(null);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        setError("Token de autenticação não encontrado. Faça login.");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(`${API_URL}/api/v1/users/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiFetch("/users/");
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -138,17 +125,9 @@ export default function Page(): React.JSX.Element {
     setCreatingUser(true);
     setCreateUserError(null);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        throw new Error("Token de autenticação não encontrado. Faça login.");
-      }
-
-      const response = await fetch(`${API_URL}/api/v1/auth/signup`, {
+      const response = await apiFetch("/auth/signup", {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
@@ -186,18 +165,9 @@ export default function Page(): React.JSX.Element {
     setUpdatingUser(true);
     setUpdateUserError(null);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        throw new Error("Token de autenticação não encontrado. Faça login.");
-      }
-
-      // Endpoint para atualização de usuário (ajuste se for diferente no seu backend)
-      const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
-        method: 'PUT', // Ou PATCH, dependendo da sua API
+      const response = await apiFetch(`/users/${userId}`, {
+        method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
@@ -235,19 +205,8 @@ export default function Page(): React.JSX.Element {
     setConfirmingDelete(true);
     setDeleteUserError(null);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        throw new Error("Token de autenticação não encontrado. Faça login.");
-      }
-
-      // Endpoint para exclusão de usuário (ajuste se for diferente no seu backend)
-      const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
+      const response = await apiFetch(`/users/${userId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
       });
 
       if (!response.ok) {
