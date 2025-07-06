@@ -72,9 +72,9 @@ export function CreateArtifactModal({ open, onClose }: CreateArtifactModalProps)
       } as ApiRequestConfig);
       setSuccess("Artefato criado com sucesso!");
       onClose();
-    } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : "Erro ao criar artefato");
+    } catch (error_) {
+      console.error(error_);
+      setError(error_ instanceof Error ? error_.message : "Erro ao criar artefato");
     } finally {
       setLoading(false);
     }

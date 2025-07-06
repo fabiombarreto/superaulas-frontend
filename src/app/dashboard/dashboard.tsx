@@ -16,7 +16,7 @@ import dayjs from "dayjs"; // Para ajudar com as datas
 
 import type { Artifact } from "@/types/artifact"; // Sua interface Artifact
 import { ArtifactCard } from "@/components/dashboard/artifacts/artifact-card"; // Seu componente ArtifactCard
-import { CreateArtifactModal } from "@/components/artifacts/CreateArtifactModal";
+import { CreateArtifactModal } from "@/components/artifacts/create-artifact-modal";
 
 // Componente Placeholder para adicionar artefatos
 interface CardPlaceholderProps {
