@@ -36,7 +36,7 @@ function CardPlaceholder(): React.JSX.Element {
 			}}
 		>
 			<Typography color="text.secondary" variant="body2">
-				+ Adicionar Tarefa
+				+ Adicionar Artefato
 			</Typography>
 		</Box>
 	);
