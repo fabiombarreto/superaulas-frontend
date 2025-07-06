@@ -2,7 +2,6 @@
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import AvatarGroup from "@mui/material/AvatarGroup";
-import Box from "@mui/material/Box"; // Importado para usar Box para tags e ícones
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -20,20 +19,24 @@ export interface ArtifactCardProps {
 	artifact: Artifact;
 }
 
-export function ArtifactCard({ artifact }: ArtifactCardProps): React.JSX.Element {
-	// Mapeamento de cores para status (exemplo, ajuste conforme seu design)
-	const getStatusColor = (status: Artifact['status']): string => {
-		switch (status) {
-			case 'draft':
-				return '#FFD700'; // Amarelo
-			case 'in_review':
-				return '#ADD8E6'; // Azul claro
-			case 'published':
-				return '#90EE90'; // Verde claro
-			default:
-				return '#D3D3D3'; // Cinza claro
+const getStatusColor = (status: Artifact['status']): string => {
+	switch (status) {
+		case 'draft': {
+			return '#FFD700'; // Amarelo
 		}
-	};
+		case 'in_review': {
+			return '#ADD8E6'; // Azul claro
+		}
+		case 'published': {
+			return '#90EE90'; // Verde claro
+		}
+		default: {
+			return '#D3D3D3'; // Cinza claro
+		}
+	}
+};
+
+export function ArtifactCard({ artifact }: ArtifactCardProps): React.JSX.Element {
 
 	return (
 		<Card sx={{
@@ -100,7 +103,7 @@ export function ArtifactCard({ artifact }: ArtifactCardProps): React.JSX.Element
 							</IconButton>
 						</Stack>
 						<AvatarGroup sx={{ justifyContent: "flex-end" }}> {/* Avatares à direita */}
-							<Avatar src={artifact.created_by.avatar} alt={artifact.created_by.name} sx={{ width: 24, height: 24, fontSize: '0.75rem' }} />
+							<Avatar src={artifact.created_by?.avatar} alt={artifact.created_by?.name} sx={{ width: 24, height: 24, fontSize: '0.75rem' }} />
 							{/* Removido updated_by para um visual mais limpo, como no ClickUp,
 							    mas você pode adicionar de volta se for importante */}
 							{/* <Avatar src={artifact.updated_by.avatar} alt={artifact.updated_by.name} sx={{ width: 24, height: 24, fontSize: '0.75rem' }} /> */}
