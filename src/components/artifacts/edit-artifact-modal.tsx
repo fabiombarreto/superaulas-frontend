@@ -12,6 +12,7 @@ import {
   Stack,
   TextField,
   Alert,
+  Snackbar,
   CircularProgress,
 } from "@mui/material";
 
@@ -42,6 +43,8 @@ export function EditArtifactModal({
   const [review, setReview] = React.useState<string>("");
   const [link, setLink] = React.useState<string>("");
   const [loading, setLoading] = React.useState(false);
+  const [reviewLoading, setReviewLoading] = React.useState(false);
+  const [reviewSuccess, setReviewSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -84,6 +87,33 @@ export function EditArtifactModal({
       setError(error_ instanceof Error ? error_.message : "Erro ao atualizar artefato");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTriggerReview = async () => {
+    if (!artifact) return;
+    try {
+      setReviewLoading(true);
+      setError(null);
+      const { data } = await api.post(
+        `/artifacts/${artifact.id}/review`,
+        {},
+        { withAuth: true } as ApiRequestConfig
+      );
+      const updated = data as Artifact;
+      setReview(updated.review ?? "");
+      setStatus(updated.status as typeof artifactStatuses[number]);
+      if (onSaved) {
+        onSaved(updated);
+      }
+      setReviewSuccess("Review atualizado com sucesso!");
+    } catch (error_) {
+      console.error(error_);
+      setError(
+        error_ instanceof Error ? error_.message : "Erro ao disparar review"
+      );
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -138,14 +168,29 @@ export function EditArtifactModal({
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} disabled={loading} color="inherit">
+          <Button onClick={onClose} disabled={loading || reviewLoading} color="inherit">
             Cancelar
+          </Button>
+          <Button
+            onClick={handleTriggerReview}
+            variant="outlined"
+            disabled={reviewLoading || loading}
+            startIcon={reviewLoading ? <CircularProgress size={18} /> : undefined}
+          >
+            Disparar Review
           </Button>
           <Button type="submit" variant="contained" disabled={loading} startIcon={loading ? <CircularProgress size={18} /> : undefined}>
             Salvar
           </Button>
         </DialogActions>
       </form>
+      <Snackbar
+        open={Boolean(reviewSuccess)}
+        autoHideDuration={6000}
+        onClose={() => setReviewSuccess(null)}
+      >
+        {reviewSuccess ? <Alert severity="success">{reviewSuccess}</Alert> : undefined}
+      </Snackbar>
     </Dialog>
   );
 }
