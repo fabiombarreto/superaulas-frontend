@@ -44,12 +44,14 @@ export function ArtifactCard({ artifact, onClick }: ArtifactCardProps): React.JS
 			<CardContent sx={{ flex: "1 1 auto", p: 0, '&:last-child': { pb: 0 } }}> {/* Remover padding padrão do CardContent */}
 				<Stack spacing={1}>
 					{/* ID e Título */}
-					<Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold' }}>
-						{artifact.id}
-					</Typography>
-					<Typography variant="subtitle1" sx={{ fontWeight: 'bold', lineHeight: 1.3 }}>
-						{artifact.name}
-					</Typography>
+					<Stack direction="row" alignItems="center" spacing={1}>
+						<Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold' }}>
+							{artifact.id}
+						</Typography>
+						<Typography variant="subtitle1" sx={{ fontWeight: 'bold', lineHeight: 1.3 }}>
+							{artifact.name}
+						</Typography>
+					</Stack>
 
 					{/* Tags (Status e Tipo) */}
 					<Stack direction="row" spacing={0.5} sx={{ mt: 1 }}>
