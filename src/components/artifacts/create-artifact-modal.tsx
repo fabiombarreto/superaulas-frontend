@@ -1,3 +1,4 @@
+// src/components/dashboard/artifacts/create-artifact-modal.tsx
 "use client";
 
 import * as React from "react";
@@ -20,13 +21,15 @@ import api, { ApiRequestConfig } from "@/utils/api";
 export interface CreateArtifactModalProps {
   open: boolean;
   onClose: () => void;
+  onArtifactCreated: () => void; // Novo callback para notificar a página pai sobre a criação
 }
 
-const artifactTypes = ["script", "video", "slide"] as const;
-const artifactStatuses = ["draft", "in_review", "published"] as const;
+const artifactTypes = ["script", "video", "slide", "transcript", "feedback"] as const; // Adicionado os tipos do seu backend
+const artifactStatuses = ["draft", "in_review", "published", "archived"] as const; // Adicionado os status do seu backend
 const reviewTypes = ["text", "url"] as const;
 
-export function CreateArtifactModal({ open, onClose }: CreateArtifactModalProps): React.JSX.Element {
+export function CreateArtifactModal({ open, onClose, onArtifactCreated }: CreateArtifactModalProps): React.JSX.Element {
+  const [name, setName] = React.useState<string>(""); // Novo estado para o nome
   const [type, setType] = React.useState<typeof artifactTypes[number]>("script");
   const [status, setStatus] = React.useState<typeof artifactStatuses[number]>("draft");
   const [reviewType, setReviewType] = React.useState<typeof reviewTypes[number]>("text");
@@ -38,6 +41,7 @@ export function CreateArtifactModal({ open, onClose }: CreateArtifactModalProps)
 
   React.useEffect(() => {
     if (!open) {
+      setName(""); // Reseta o nome ao fechar
       setType("script");
       setStatus("draft");
       setReviewType("text");
@@ -50,12 +54,19 @@ export function CreateArtifactModal({ open, onClose }: CreateArtifactModalProps)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError(null); // Limpa erros anteriores
+
+    if (!name.trim()) { // Validação para o campo nome
+      setError("O nome do artefato é obrigatório.");
+      return;
+    }
     if (!file) {
       setError("Selecione um arquivo para enviar.");
       return;
     }
 
     const formData = new FormData();
+    formData.append("name", name); // <<< ADICIONADO O CAMPO NAME
     formData.append("file", file);
     formData.append("type", type);
     formData.append("status", status);
@@ -66,12 +77,15 @@ export function CreateArtifactModal({ open, onClose }: CreateArtifactModalProps)
 
     try {
       setLoading(true);
+      // O endpoint para upload de artefatos geralmente é diferente do endpoint geral de listar
+      // Verifique no seu backend se é "/artifacts/upload" ou apenas "/artifacts" para POST
       await api.post("/artifacts/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withAuth: true,
       } as ApiRequestConfig);
       setSuccess("Artefato criado com sucesso!");
-      onClose();
+      onClose(); // Fecha o modal
+      onArtifactCreated(); // Notifica o componente pai para recarregar a lista
     } catch (error_) {
       console.error(error_);
       setError(error_ instanceof Error ? error_.message : "Erro ao criar artefato");
@@ -86,6 +100,15 @@ export function CreateArtifactModal({ open, onClose }: CreateArtifactModalProps)
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
+            {/* NOVO CAMPO PARA O NOME */}
+            <TextField
+              label="Nome do Artefato"
+              fullWidth
+              variant="outlined"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required // Marca como obrigatório
+            />
             <Select value={type} onChange={(e) => setType(e.target.value as typeof artifactTypes[number])} fullWidth>
               {artifactTypes.map((option) => (
                 <MenuItem key={option} value={option}>
